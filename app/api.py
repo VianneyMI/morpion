@@ -1,6 +1,6 @@
 
-from flask import make_response, abort
-from models import db, Game, GameSchema, Mark, MarkSchema
+from flask import abort
+from models import db, Game, GameSchema, Player
 
 
 def get_version():
@@ -29,9 +29,11 @@ def get_game(game_id):
     game = Game.query.filter(Game.game_id == game_id).one_or_none()
 
     if game:
+
         schema = GameSchema()
         body = schema.dump(game)
-        return body
+        return body.data # BUG: ? I am not sure why without the .data,
+                         #the api crashes here while it works fine below <VM, 16/05/21
 
     else:
         abort(404, "Game not found")
@@ -46,20 +48,26 @@ def place_mark(game_id, mark):
         index = 3*mark['row'] + mark['col']
         updated_grid = list(game.grid)
         # Check if coup is allowed
-        if updated_grid[index]=='_':
+
+        if updated_grid[index]=='_' and game.current_player.value==mark['player']:
             updated_grid[index]=mark['player']
         else:
             abort(400,"Invalid input or Can't place mark here")
         game.grid = ''.join(updated_grid)
 
         gameover, winner = is_gameover(game.grid,mark)
-        print(gameover)
-        print(winner)
 
         if gameover:
             game.is_over = True
             if winner:
                 game.winner = winner
+
+        # Switch current_player
+        if game.current_player.value == 'X':
+
+            game.current_player = Player.O
+        else:
+            game.current_player = Player.X
 
         # Updating database
         schema = GameSchema()
@@ -73,7 +81,7 @@ def place_mark(game_id, mark):
 
 def is_gameover(grid:str, mark)->(bool,str):
     """Checks if the game is over either with a winner or because the grid is full"""
-    print("Inside is_gameover")
+
     winner, player = has_winner(grid,mark)
     if winner:
         return True, player
@@ -115,7 +123,7 @@ def has_winner(grid:str, mark)->(bool,str):
     # Return
     return (winner, mark['player'])
 
-def is_complete(grid:str):
+def is_complete(grid:str)->bool:
     """Checks if grid is full"""
 
     complete = True
@@ -124,7 +132,7 @@ def is_complete(grid:str):
             complete = False
     return complete
 
-def to_index(row,col):
+def to_index(row:int,col:int)->int:
     """Flatten coordinates"""
 
     return 3*row + col
