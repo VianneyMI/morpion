@@ -2,14 +2,14 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow_sqlalchemy import ModelSchema
 from app.extensions import db
-#db = SQLAlchemy()
+
 
 class Mark(db.Model):
     __tablename__="mark"
     mark_id = db.Column(db.Integer, primary_key=True)
-    row = db.Column(db.Integer)
-    col = db.Column(db.Integer)
-    player = db.Column(db.String(1))
+    row = db.Column(db.Integer, nullable=False)
+    col = db.Column(db.Integer, nullable=False)
+    player = db.Column(db.String(1), nullable=False)
 
 class MarkSchema(ModelSchema):
     class Meta:

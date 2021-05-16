@@ -15,6 +15,6 @@ def create_app():
 
     # Database setup
     extensions.create_db(flask_app)
-    extensions.init_db(flask_app)
+
 
     return flask_app
