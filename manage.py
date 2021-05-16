@@ -11,9 +11,6 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
-app.route('/')
-def home():
-    return render_template('home.html')
 
 
 if __name__ == '__main__':

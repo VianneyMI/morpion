@@ -3,6 +3,7 @@ import connexion
 from app import extensions
 
 
+
 def create_app():
     # Setup connexion
     connexion_app = connexion.FlaskApp(__name__)
@@ -11,5 +12,9 @@ def create_app():
 
     # Flask setup
     extensions.init_app(flask_app)
+
+    # Database setup
+    extensions.create_db(flask_app)
+    extensions.init_db(flask_app)
 
     return flask_app
